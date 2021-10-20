@@ -1,6 +1,6 @@
 use std::{env, path::PathBuf};
 
-const TARGET_HEADER: &str = "./lib/pg_query.h";
+const TARGET_HEADER: &str = "./libpg_query/pg_query.h";
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // get the output path from the environment
@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed={}", TARGET_HEADER);
 
     // make sure that the libraries are linked correctly
-    println!("cargo:rustc-link-search=native=./lib");
+    println!("cargo:rustc-link-search=native=./libpg_query");
     println!("cargo:rustc-link-lib=static=pg_query");
 
     // generate the bindings
@@ -22,7 +22,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .write_to_file(out_path.join("bindings.rs"))?;
 
     // generate the proto definitions
-    prost_build::compile_protos(&["./lib/protobuf/pg_query.proto"], &["./lib/protobuf"])?;
+    prost_build::compile_protos(
+        &["./libpg_query/protobuf/pg_query.proto"],
+        &["./libpg_query/protobuf"],
+    )?;
 
     Ok(())
 }
